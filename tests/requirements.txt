@@ -1,0 +1,15 @@
+selenium==4.15.2
+webdriver-manager==4.0.1
+pytest==7.4.3
+pytest-html==4.1.1
+pytest-xdist==3.3.1
+allure-pytest==2.13.2
+requests==2.31.0
+beautifulsoup4==4.12.2
+lxml==4.9.3
+pillow==10.1.0
+opencv-python==4.8.1.78
+numpy==1.24.3
+pandas==2.0.3
+matplotlib==3.7.2
+seaborn==0.12.2

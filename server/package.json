@@ -1,0 +1,30 @@
+{
+  "name": "secureauth-ai-server",
+  "version": "1.0.0",
+  "description": "Backend server for SecureAuth AI bioauthentication system",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "@simplewebauthn/server": "^9.0.0",
+    "@simplewebauthn/browser": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "webauthn",
+    "biometric",
+    "authentication",
+    "security",
+    "ai-testing"
+  ],
+  "author": "SecureAuth AI Team",
+  "license": "MIT"
+}

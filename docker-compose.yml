@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # Frontend React Application
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3001
+      - VITE_WEBAUTHN_RP_ID=localhost
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    depends_on:
+      - backend
+    networks:
+      - secureauth-network
+
+  # Backend Express Server
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    networks:
+      - secureauth-network
+
+  # Testing Environment
+  test-runner:
+    build:
+      context: ./tests
+      dockerfile: Dockerfile.tests
+    environment:
+      - DISPLAY=:99
+      - PYTHONPATH=/app
+    volumes:
+      - ./tests:/app
+      - ./reports:/app/reports
+      - ./screenshots:/app/screenshots
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - secureauth-network
+    command: ["python", "run_tests.py", "--comprehensive"]
+
+  # Chrome Browser for WebAuthn Testing
+  chrome:
+    image: selenium/standalone-chrome:latest
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+    environment:
+      - SE_NODE_MAX_SESSIONS=4
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+      - SE_VNC=true
+      - SE_VNC_NO_PASSWORD=true
+    volumes:
+      - /dev/shm:/dev/shm
+    networks:
+      - secureauth-network
+
+  # Redis for Session Management (Optional)
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - secureauth-network
+
+  # PostgreSQL for Production (Optional)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=secureauth
+      - POSTGRES_USER=secureauth_user
+      - POSTGRES_PASSWORD=secureauth_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - secureauth-network
+
+volumes:
+  redis-data:
+  postgres-data:
+
+networks:
+  secureauth-network:
+    driver: bridge
