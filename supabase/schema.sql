@@ -32,6 +32,18 @@ CREATE TABLE IF NOT EXISTS public.biometric_credentials (
     is_active BOOLEAN DEFAULT true
 );
 
+-- Face credentials table (stores compact face signatures for on-device matching)
+CREATE TABLE IF NOT EXISTS public.face_credentials (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    face_signature TEXT NOT NULL,
+    model_version TEXT DEFAULT 'ahash-8x8',
+    threshold INTEGER DEFAULT 10, -- maximum Hamming distance to consider a match
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    last_used TIMESTAMP WITH TIME ZONE,
+    is_active BOOLEAN DEFAULT true
+);
+
 -- Authentication sessions table
 CREATE TABLE IF NOT EXISTS public.authentication_sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -64,6 +76,9 @@ CREATE INDEX IF NOT EXISTS idx_biometric_credentials_user_id ON public.biometric
 CREATE INDEX IF NOT EXISTS idx_biometric_credentials_credential_id ON public.biometric_credentials(credential_id);
 CREATE INDEX IF NOT EXISTS idx_biometric_credentials_active ON public.biometric_credentials(is_active);
 
+CREATE INDEX IF NOT EXISTS idx_face_credentials_user_id ON public.face_credentials(user_id);
+CREATE INDEX IF NOT EXISTS idx_face_credentials_active ON public.face_credentials(is_active);
+
 CREATE INDEX IF NOT EXISTS idx_auth_sessions_user_id ON public.authentication_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_auth_sessions_token ON public.authentication_sessions(session_token);
 CREATE INDEX IF NOT EXISTS idx_auth_sessions_active ON public.authentication_sessions(is_active);
@@ -90,6 +105,7 @@ DROP POLICY IF EXISTS "Users can update their own biometric credentials" ON publ
 DROP POLICY IF EXISTS "Users can view their own sessions" ON public.authentication_sessions;
 DROP POLICY IF EXISTS "Users can insert their own sessions" ON public.authentication_sessions;
 DROP POLICY IF EXISTS "Users can update their own sessions" ON public.authentication_sessions;
+DROP POLICY IF EXISTS "Allow public face credential operations" ON public.face_credentials;
 DROP POLICY IF EXISTS "Users can view their own challenges" ON public.webauthn_challenges;
 DROP POLICY IF EXISTS "Users can insert their own challenges" ON public.webauthn_challenges;
 DROP POLICY IF EXISTS "Users can update their own challenges" ON public.webauthn_challenges;
@@ -106,6 +122,10 @@ CREATE POLICY "Allow users to update their own profile" ON public.users
 
 -- Biometric credentials policies - Allow public access for WebAuthn operations
 CREATE POLICY "Allow public biometric credential operations" ON public.biometric_credentials
+    FOR ALL USING (true);
+
+-- Face credentials policies - Allow public access for face registration/auth (demo only)
+CREATE POLICY "Allow public face credential operations" ON public.face_credentials
     FOR ALL USING (true);
 
 -- Authentication sessions policies - Allow public access for session management
