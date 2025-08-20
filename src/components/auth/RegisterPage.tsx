@@ -19,12 +19,14 @@ import {
   EyeOff,
   Mail,
   User,
+  Camera,
   CheckSquare,
   Square
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService, type AuthUser, type RegisterCredentials } from "@/lib/auth-service";
 import { startRegistration } from '@simplewebauthn/browser';
+import { captureFaceSignature } from "@/lib/face-utils";
 
 interface RegisterPageProps {
   onRegisterSuccess: (user: AuthUser) => void;
@@ -50,12 +52,15 @@ export const RegisterPage = ({ onRegisterSuccess, onSwitchToLogin }: RegisterPag
   const [biometricUsername, setBiometricUsername] = useState("");
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
   const [registerBiometricAfterAccount, setRegisterBiometricAfterAccount] = useState(false);
+  const [isFaceSupported, setIsFaceSupported] = useState(false);
+  const [hasFaceCredentials, setHasFaceCredentials] = useState(false);
   
   const { toast } = useToast();
 
-  // Check if WebAuthn is supported
+  // Check if WebAuthn/camera is supported
   useState(() => {
     setIsBiometricSupported(window.PublicKeyCredential !== undefined);
+    setIsFaceSupported(!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
   });
 
   // Handle account registration
@@ -182,6 +187,50 @@ export const RegisterPage = ({ onRegisterSuccess, onSwitchToLogin }: RegisterPag
     }
   };
 
+  // Handle face registration
+  const handleFaceRegistration = async () => {
+    if (!currentUser) {
+      toast({ title: "Account Required", description: "Please create an account first", variant: "destructive" });
+      return;
+    }
+
+    if (!isFaceSupported) {
+      toast({ title: "Camera Not Available", description: "This device cannot capture face images", variant: "destructive" });
+      return;
+    }
+
+    setIsLoading(true);
+    setAuthState("scanning");
+
+    try {
+      const hasFace = await authService.hasFaceCredentials(currentUser.id);
+      if (hasFace) throw new Error("Face credentials already registered");
+
+      const options = await authService.registerFaceOptions(currentUser.id);
+      if (!options.success || !options.options) throw new Error(options.error || "Failed to get options");
+
+      const signature = await captureFaceSignature();
+      const verification = await authService.verifyFaceRegistration(currentUser.id, signature, options.options.method, options.options.threshold);
+
+      if (verification.success) {
+        setAuthState("success");
+        setHasFaceCredentials(true);
+        toast({ title: "Face Registration Successful", description: "Your face credentials have been registered" });
+        setTimeout(() => {
+          onRegisterSuccess(currentUser!);
+        }, 2000);
+      } else {
+        throw new Error(verification.error || "Registration failed");
+      }
+    } catch (error) {
+      setAuthState("error");
+      toast({ title: "Face Registration Failed", description: error instanceof Error ? error.message : "Registration failed", variant: "destructive" });
+      setTimeout(() => setAuthState("idle"), 3000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const BiometricStatus = () => {
     if (authState === "scanning") {
       return (
@@ -272,7 +321,7 @@ export const RegisterPage = ({ onRegisterSuccess, onSwitchToLogin }: RegisterPag
         
         <CardContent>
           <Tabs defaultValue="account" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="account" className="flex items-center space-x-2">
                 <UserPlus className="h-4 w-4" />
                 <span>Account</span>
@@ -280,6 +329,10 @@ export const RegisterPage = ({ onRegisterSuccess, onSwitchToLogin }: RegisterPag
               <TabsTrigger value="biometric" className="flex items-center space-x-2">
                 <Fingerprint className="h-4 w-4" />
                 <span>Biometric</span>
+              </TabsTrigger>
+              <TabsTrigger value="face" className="flex items-center space-x-2">
+                <Camera className="h-4 w-4" />
+                <span>Face</span>
               </TabsTrigger>
             </TabsList>
 
@@ -483,6 +536,68 @@ export const RegisterPage = ({ onRegisterSuccess, onSwitchToLogin }: RegisterPag
                           ? "Ready to register biometric credentials for your account."
                           : "Please create an account first to register biometric credentials."
                         }
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Face Registration Tab */}
+            <TabsContent value="face" className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="face-username">Username</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="face-username"
+                      type="text"
+                      placeholder="Enter your username"
+                      value={biometricUsername}
+                      onChange={(e) => setBiometricUsername(e.target.value)}
+                      className="pl-10"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {authState !== "idle" && (
+                  <Card className="bg-card/50 border-border/50">
+                    <BiometricStatus />
+                  </Card>
+                )}
+
+                <Button
+                  onClick={handleFaceRegistration}
+                  disabled={isLoading || !currentUser || !biometricUsername.trim() || !isFaceSupported}
+                  variant="default"
+                  size="lg"
+                  className="h-14 w-full"
+                  data-testid="face-register-button"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Registering Face...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="h-5 w-5" />
+                      Register Face Credentials
+                    </>
+                  )}
+                </Button>
+
+                <Card className="bg-muted/30 border-border/50 p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-full bg-primary/10">
+                      <Shield className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Face Registration</p>
+                      <p className="text-xs text-muted-foreground">
+                        Your face signature is computed locally and stored as a compact hash in the database for matching.
                       </p>
                     </div>
                   </div>

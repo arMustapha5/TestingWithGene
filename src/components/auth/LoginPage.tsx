@@ -18,12 +18,14 @@ import {
   Eye,
   EyeOff,
   Mail,
-  User
+  User,
+  Camera
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService, type AuthUser, type LoginCredentials, type RegisterCredentials } from "@/lib/auth-service";
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import { DatabaseSetupAlert } from "@/components/ui/DatabaseSetupAlert";
+import { captureFaceSignature } from "@/lib/face-utils";
 
 interface LoginPageProps {
   onLoginSuccess: (user: AuthUser) => void;
@@ -47,12 +49,16 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
   // Biometric states
   const [biometricUsername, setBiometricUsername] = useState("");
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
+  const [isFaceSupported, setIsFaceSupported] = useState(false);
+  const [hasFaceCredentials, setHasFaceCredentials] = useState(false);
   
   const { toast } = useToast();
 
   useEffect(() => {
     // Check if WebAuthn is supported
     setIsBiometricSupported(window.PublicKeyCredential !== undefined);
+    // Check camera support
+    setIsFaceSupported(!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
     
     // Check if user is already authenticated
     const user = authService.getCurrentUser();
@@ -70,16 +76,10 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
     checkDatabase();
   }, [onLoginSuccess]);
 
-  // Check if user has biometric credentials
-  const checkBiometricCredentials = async (email: string) => {
+  // Check if user has biometric credentials by username
+  const checkBiometricCredentials = async (username: string) => {
     try {
-      // Find user by email
-      const { data: user } = await authService['supabase']
-        .from('users')
-        .select('id')
-        .eq('email', email)
-        .single();
-
+      const user = await authService.getUserByUsername(username);
       if (user) {
         const hasCredentials = await authService.hasBiometricCredentials(user.id);
         setHasBiometricCredentials(hasCredentials);
@@ -87,6 +87,23 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
       }
       return false;
     } catch (error) {
+      return false;
+    }
+  };
+
+  // Check if user has face credentials by username
+  const checkFaceCredentials = async (username: string) => {
+    try {
+      const user = await authService.getUserByUsername(username);
+      if (user) {
+        const hasFace = await authService.hasFaceCredentials(user.id);
+        setHasFaceCredentials(hasFace);
+        return hasFace;
+      }
+      setHasFaceCredentials(false);
+      return false;
+    } catch (error) {
+      setHasFaceCredentials(false);
       return false;
     }
   };
@@ -158,11 +175,7 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
 
     try {
       // Find user by username
-      const { data: user } = await authService['supabase']
-        .from('users')
-        .select('id, email')
-        .eq('username', biometricUsername.trim())
-        .single();
+      const user = await authService.getUserByUsername(biometricUsername.trim());
 
       if (!user) {
         throw new Error("User not found");
@@ -230,11 +243,7 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
 
     try {
       // Find user by username
-      const { data: user } = await authService['supabase']
-        .from('users')
-        .select('id, email')
-        .eq('username', biometricUsername.trim())
-        .single();
+      const user = await authService.getUserByUsername(biometricUsername.trim());
 
       if (!user) {
         throw new Error("User not found");
@@ -284,10 +293,122 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
     }
   };
 
+  // Handle face authentication
+  const handleFaceAuth = async () => {
+    if (!biometricUsername.trim()) {
+      toast({
+        title: "Username Required",
+        description: "Please enter your username for face authentication",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isFaceSupported) {
+      toast({ title: "Camera Not Available", description: "This device cannot capture face images", variant: "destructive" });
+      return;
+    }
+
+    setIsLoading(true);
+    setAuthState("scanning");
+
+    try {
+      const user = await authService.getUserByUsername(biometricUsername.trim());
+      if (!user) throw new Error("User not found");
+
+      const hasFace = await authService.hasFaceCredentials(user.id);
+      if (!hasFace) throw new Error("No face credentials found for this user");
+
+      const options = await authService.authenticateFaceOptions(user.id);
+      if (!options.success || !options.options) throw new Error(options.error || "Failed to prepare face authentication");
+
+      const signature = await captureFaceSignature();
+      const verification = await authService.verifyFaceAuthentication(user.id, signature);
+
+      if (verification.success && verification.user) {
+        setCurrentUser(verification.user);
+        setAuthState("success");
+        toast({ title: "Face Authentication Successful", description: `Welcome back, ${verification.user.username}!` });
+        setTimeout(() => {
+          onLoginSuccess(verification.user!);
+        }, 1000);
+      } else {
+        throw new Error(verification.error || "Authentication failed");
+      }
+    } catch (error) {
+      setAuthState("error");
+      toast({
+        title: "Face Authentication Failed",
+        description: error instanceof Error ? error.message : "Authentication failed",
+        variant: "destructive",
+      });
+      setTimeout(() => setAuthState("idle"), 3000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle face registration
+  const handleFaceRegistration = async () => {
+    if (!biometricUsername.trim()) {
+      toast({
+        title: "Username Required",
+        description: "Please enter your username for face registration",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isFaceSupported) {
+      toast({ title: "Camera Not Available", description: "This device cannot capture face images", variant: "destructive" });
+      return;
+    }
+
+    setIsLoading(true);
+    setAuthState("scanning");
+
+    try {
+      const user = await authService.getUserByUsername(biometricUsername.trim());
+      if (!user) throw new Error("User not found");
+
+      const hasFace = await authService.hasFaceCredentials(user.id);
+      if (hasFace) throw new Error("User already has face credentials registered");
+
+      const options = await authService.registerFaceOptions(user.id);
+      if (!options.success || !options.options) throw new Error(options.error || "Failed to get face registration options");
+
+      const signature = await captureFaceSignature();
+      const verification = await authService.verifyFaceRegistration(user.id, signature, options.options.method, options.options.threshold);
+
+      if (verification.success) {
+        setAuthState("success");
+        setHasFaceCredentials(true);
+        toast({ title: "Face Registration Successful", description: "Your face credentials have been registered successfully" });
+        setTimeout(() => setAuthState("idle"), 2000);
+      } else {
+        throw new Error(verification.error || "Registration failed");
+      }
+    } catch (error) {
+      setAuthState("error");
+      toast({
+        title: "Face Registration Failed",
+        description: error instanceof Error ? error.message : "Registration failed",
+        variant: "destructive",
+      });
+      setTimeout(() => setAuthState("idle"), 3000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Check biometric credentials when username changes
   useEffect(() => {
     if (biometricUsername.trim()) {
-      checkBiometricCredentials(biometricUsername);
+      checkBiometricCredentials(biometricUsername.trim());
+      checkFaceCredentials(biometricUsername.trim());
+    } else {
+      setHasBiometricCredentials(false);
+      setHasFaceCredentials(false);
     }
   }, [biometricUsername]);
 
@@ -388,7 +509,7 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
           )}
 
           <Tabs defaultValue="biometric" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="biometric" className="flex items-center space-x-2">
                 <Fingerprint className="h-4 w-4" />
                 <span>Biometric</span>
@@ -396,6 +517,10 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
               <TabsTrigger value="password" className="flex items-center space-x-2">
                 <Lock className="h-4 w-4" />
                 <span>Password</span>
+              </TabsTrigger>
+              <TabsTrigger value="face" className="flex items-center space-x-2">
+                <Camera className="h-4 w-4" />
+                <span>Face</span>
               </TabsTrigger>
             </TabsList>
 
@@ -561,6 +686,93 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
                   )}
                 </Button>
               </form>
+            </TabsContent>
+
+            {/* Face Authentication Tab */}
+            <TabsContent value="face" className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="face-username">Username</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="face-username"
+                      type="text"
+                      placeholder="Enter your username"
+                      value={biometricUsername}
+                      onChange={(e) => setBiometricUsername(e.target.value)}
+                      className="pl-10"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {authState !== "idle" && (
+                  <Card className="bg-card/50 border-border/50">
+                    <BiometricStatus />
+                  </Card>
+                )}
+
+                <div className="grid grid-cols-1 gap-3">
+                  {!hasFaceCredentials ? (
+                    <Button
+                      onClick={handleFaceRegistration}
+                      disabled={isLoading || !biometricUsername.trim() || !isFaceSupported}
+                      variant="outline"
+                      size="lg"
+                      className="h-14"
+                      data-testid="face-register-button"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Registering Face...
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="h-5 w-5" />
+                          Register Face Credentials
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleFaceAuth}
+                      disabled={isLoading || !biometricUsername.trim() || !isFaceSupported}
+                      variant="default"
+                      size="lg"
+                      className="h-14"
+                      data-testid="face-auth-button"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Authenticating with Face...
+                        </>
+                      ) : (
+                        <>
+                          <Camera className="h-5 w-5" />
+                          Authenticate with Face
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+
+                <Card className="bg-muted/30 border-border/50 p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-full bg-primary/10">
+                      <Shield className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Face Authentication</p>
+                      <p className="text-xs text-muted-foreground">
+                        Your face signature is computed locally and stored as a compact hash for matching.
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </TabsContent>
           </Tabs>
 

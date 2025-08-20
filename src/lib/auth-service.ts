@@ -66,6 +66,17 @@ export interface WebAuthnAuthenticationOptions {
   timeout: number;
 }
 
+export interface FaceRegistrationOptions {
+  // For demo: client captures image, we compute signature client-side
+  method: 'ahash-8x8';
+  threshold: number; // max Hamming distance allowed
+}
+
+export interface FaceAuthenticationOptions {
+  method: 'ahash-8x8';
+  threshold: number;
+}
+
 export class AuthService {
   private static instance: AuthService;
   private currentUser: AuthUser | null = null;
@@ -211,6 +222,37 @@ export class AuthService {
       return { success: true, user: authUser };
     } catch (error) {
       return { success: false, error: 'Registration failed' };
+    }
+  }
+
+  // Fetch user helpers
+  async getUserByEmail(email: string): Promise<User | null> {
+    if (!this.isDatabaseReady) return null;
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
+      if (error || !data) return null;
+      return data as unknown as User;
+    } catch {
+      return null;
+    }
+  }
+
+  async getUserByUsername(username: string): Promise<User | null> {
+    if (!this.isDatabaseReady) return null;
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .single();
+      if (error || !data) return null;
+      return data as unknown as User;
+    } catch {
+      return null;
     }
   }
 
@@ -584,6 +626,156 @@ export class AuthService {
     } catch (error) {
       return { success: false, error: 'Authentication verification failed' };
     }
+  }
+
+  // Face recognition - options generation (simple, client-side processing)
+  async registerFaceOptions(userId: string): Promise<{ success: boolean; options?: FaceRegistrationOptions; error?: string }> {
+    if (!this.isDatabaseReady) {
+      return { success: false, error: 'Database is not ready. Please run the schema setup first.' };
+    }
+    try {
+      // Provide options for client-side capture/signature
+      return { success: true, options: { method: 'ahash-8x8', threshold: 10 } };
+    } catch {
+      return { success: false, error: 'Failed to generate face registration options' };
+    }
+  }
+
+  async verifyFaceRegistration(userId: string, faceSignature: string, modelVersion: string = 'ahash-8x8', threshold: number = 10): Promise<{ success: boolean; error?: string }> {
+    if (!this.isDatabaseReady) {
+      return { success: false, error: 'Database is not ready. Please run the schema setup first.' };
+    }
+
+    try {
+      // Store face signature for the user
+      const { error } = await supabase
+        .from('face_credentials')
+        .insert({
+          user_id: userId,
+          face_signature: faceSignature,
+          model_version: modelVersion,
+          threshold,
+          is_active: true,
+        });
+
+      if (error) {
+        return { success: false, error: 'Failed to store face credential' };
+      }
+      return { success: true };
+    } catch {
+      return { success: false, error: 'Face registration failed' };
+    }
+  }
+
+  async authenticateFaceOptions(userId: string): Promise<{ success: boolean; options?: FaceAuthenticationOptions; error?: string }> {
+    if (!this.isDatabaseReady) {
+      return { success: false, error: 'Database is not ready. Please run the schema setup first.' };
+    }
+    try {
+      // Ensure user has active face credential
+      const { data, error } = await supabase
+        .from('face_credentials')
+        .select('id, threshold')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .limit(1);
+      if (error || !data || data.length === 0) {
+        return { success: false, error: 'No face credentials found' };
+      }
+      return { success: true, options: { method: 'ahash-8x8', threshold: data[0].threshold ?? 10 } };
+    } catch {
+      return { success: false, error: 'Failed to prepare face authentication' };
+    }
+  }
+
+  async verifyFaceAuthentication(userId: string, candidateSignature: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
+    if (!this.isDatabaseReady) {
+      return { success: false, error: 'Database is not ready. Please run the schema setup first.' };
+    }
+    try {
+      // Fetch stored signatures
+      const { data: creds, error } = await supabase
+        .from('face_credentials')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_active', true);
+      if (error || !creds || creds.length === 0) {
+        return { success: false, error: 'No face credentials found' };
+      }
+
+      // Compare using Hamming distance on hex strings
+      const isMatch = creds.some(c => this.hammingDistanceHex(c.face_signature, candidateSignature) <= (c.threshold ?? 10));
+      if (!isMatch) {
+        return { success: false, error: 'Face not recognized' };
+      }
+
+      // Update last used
+      await supabase
+        .from('face_credentials')
+        .update({ last_used: new Date().toISOString() })
+        .eq('user_id', userId)
+        .eq('is_active', true);
+
+      // Get user and create session
+      const { data: user } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      if (!user) return { success: false, error: 'User not found' };
+
+      const sessionToken = this.generateSessionToken();
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      await supabase
+        .from('authentication_sessions')
+        .insert({ user_id: userId, session_token: sessionToken, expires_at: expiresAt, is_active: true });
+
+      await supabase
+        .from('users')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', userId);
+
+      this.sessionToken = sessionToken;
+      this.currentUser = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        isActive: user.is_active,
+        lastLogin: new Date().toISOString(),
+      };
+      localStorage.setItem('auth_session', JSON.stringify({ token: sessionToken, expiresAt: Date.now() + 24 * 60 * 60 * 1000 }));
+
+      return { success: true, user: this.currentUser };
+    } catch {
+      return { success: false, error: 'Face authentication failed' };
+    }
+  }
+
+  async hasFaceCredentials(userId: string): Promise<boolean> {
+    if (!this.isDatabaseReady) return false;
+    try {
+      const { data, error } = await supabase
+        .from('face_credentials')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .limit(1);
+      return !error && !!data && data.length > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  // Hamming distance for equal-length hex strings
+  private hammingDistanceHex(a: string, b: string): number {
+    if (!a || !b || a.length !== b.length) return Number.MAX_SAFE_INTEGER;
+    let distance = 0;
+    for (let i = 0; i < a.length; i++) {
+      const x = parseInt(a[i], 16) ^ parseInt(b[i], 16);
+      // count set bits in 4-bit value
+      distance += (x & 1) + ((x >> 1) & 1) + ((x >> 2) & 1) + ((x >> 3) & 1);
+    }
+    return distance;
   }
 
   // Check if user has biometric credentials
