@@ -15,7 +15,7 @@ public class FaceLockoutTest extends BaseTest {
         page.enterFaceUsername("nouser");
 
         for (int i = 0; i < 3; i++) {
-            page.clickFaceAuth();
+            page.clickFacePrimary();
             Thread.sleep(700);
         }
 

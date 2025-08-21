@@ -16,7 +16,7 @@ public class PermissionsAndNetworkTest extends BaseTest {
         page.enterFaceUsername("demouser");
 
         // Without camera permission in headless CI, this typically fails quickly
-        page.clickFaceAuth();
+        page.clickFacePrimary();
         Thread.sleep(1000);
     }
 
@@ -34,7 +34,7 @@ public class PermissionsAndNetworkTest extends BaseTest {
         LoginPage page = new LoginPage(driver, baseUrl);
         page.open();
         page.enterBiometricUsername("demouser");
-        page.clickBiometricAuth();
+        page.clickBiometricPrimary();
         Thread.sleep(1000);
     }
 }

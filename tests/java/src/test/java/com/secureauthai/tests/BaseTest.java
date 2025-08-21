@@ -20,9 +20,21 @@ public abstract class BaseTest {
     @BeforeEach
     void start() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new", "--window-size=1440,900");
+        // Run headful (not headless) and at a decent size for visibility
+        options.addArguments("--window-size=1440,900");
         driver = new ChromeDriver(options);
-        baseUrl = System.getProperty("baseUrl", "http://localhost:5173");
+        driver.manage().window().maximize();
+        String configured = System.getProperty("baseUrl");
+        if (configured == null || configured.trim().isEmpty()) {
+            String env = System.getenv("BASE_URL");
+            if (env == null || env.trim().isEmpty()) {
+                baseUrl = "http://localhost:8081"; // default
+            } else {
+                baseUrl = env.trim();
+            }
+        } else {
+            baseUrl = configured.trim();
+        }
     }
 
     @AfterEach

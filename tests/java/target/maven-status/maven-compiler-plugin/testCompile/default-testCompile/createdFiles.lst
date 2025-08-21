@@ -1,0 +1,7 @@
+com\secureauthai\tests\BaseTest.class
+com\secureauthai\tests\FallbackAfterFailuresTest.class
+com\secureauthai\pages\LoginPage.class
+com\secureauthai\tests\FaceLockoutTest.class
+com\secureauthai\tests\PermissionsAndNetworkTest.class
+com\secureauthai\tests\BiometricSuccessTest.class
+com\secureauthai\tests\BiometricFailureTest.class

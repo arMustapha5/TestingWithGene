@@ -82,9 +82,6 @@ export class AuthService {
   private currentUser: AuthUser | null = null;
   private sessionToken: string | null = null;
   private isDatabaseReady: boolean = false;
-  private apiBaseUrl: string | null = (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_API_BASE_URL)
-    ? (import.meta as any).env.VITE_API_BASE_URL
-    : null;
 
   private constructor() {
     this.initializeAuth();
@@ -175,30 +172,6 @@ export class AuthService {
 
   // User Registration
   async register(credentials: RegisterCredentials): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
-    if (this.apiBaseUrl) {
-      try {
-        const response = await fetch(`${this.apiBaseUrl}/api/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(credentials),
-        });
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          return { success: false, error: err.error || 'Registration failed' };
-        }
-        const user = await response.json();
-        const authUser: AuthUser = {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          isActive: true,
-          lastLogin: null,
-        };
-        return { success: true, user: authUser };
-      } catch {
-        return { success: false, error: 'Registration failed' };
-      }
-    }
     if (!this.isDatabaseReady) {
       return { 
         success: false, 
@@ -254,17 +227,6 @@ export class AuthService {
 
   // Fetch user helpers
   async getUserByEmail(email: string): Promise<User | null> {
-    if (this.apiBaseUrl) {
-      try {
-        // For demo simplicity we are using by-username endpoint; replace with by-email endpoint if added
-        const response = await fetch(`${this.apiBaseUrl}/api/users/by-username?username=${encodeURIComponent(email)}`);
-        if (!response.ok) return null;
-        const user = await response.json();
-        return user as User;
-      } catch {
-        return null;
-      }
-    }
     if (!this.isDatabaseReady) return null;
     try {
       const { data, error } = await supabase
@@ -280,16 +242,6 @@ export class AuthService {
   }
 
   async getUserByUsername(username: string): Promise<User | null> {
-    if (this.apiBaseUrl) {
-      try {
-        const response = await fetch(`${this.apiBaseUrl}/api/users/by-username?username=${encodeURIComponent(username)}`);
-        if (!response.ok) return null;
-        const user = await response.json();
-        return user as User;
-      } catch {
-        return null;
-      }
-    }
     if (!this.isDatabaseReady) return null;
     try {
       const { data, error } = await supabase
@@ -306,33 +258,6 @@ export class AuthService {
 
   // Password-based Login
   async loginWithPassword(credentials: LoginCredentials): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
-    if (this.apiBaseUrl) {
-      try {
-        const response = await fetch(`${this.apiBaseUrl}/api/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(credentials),
-        });
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          return { success: false, error: err.error || 'Invalid credentials' };
-        }
-        const user = await response.json();
-        const sessionToken = this.generateSessionToken();
-        this.sessionToken = sessionToken;
-        this.currentUser = {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          isActive: true,
-          lastLogin: new Date().toISOString(),
-        };
-        localStorage.setItem('auth_session', JSON.stringify({ token: sessionToken, expiresAt: Date.now() + 24*60*60*1000 }));
-        return { success: true, user: this.currentUser };
-      } catch {
-        return { success: false, error: 'Login failed' };
-      }
-    }
     if (!this.isDatabaseReady) {
       return { 
         success: false, 
@@ -705,9 +630,6 @@ export class AuthService {
 
   // Face recognition - options generation (simple, client-side processing)
   async registerFaceOptions(userId: string): Promise<{ success: boolean; options?: FaceRegistrationOptions; error?: string }> {
-    if (this.apiBaseUrl) {
-      return { success: true, options: { method: 'ahash-8x8', threshold: 10 } };
-    }
     if (!this.isDatabaseReady) {
       return { success: false, error: 'Database is not ready. Please run the schema setup first.' };
     }
@@ -720,22 +642,6 @@ export class AuthService {
   }
 
   async verifyFaceRegistration(userId: string, faceSignature: string, modelVersion: string = 'ahash-8x8', threshold: number = 10): Promise<{ success: boolean; error?: string }> {
-    if (this.apiBaseUrl) {
-      try {
-        const response = await fetch(`${this.apiBaseUrl}/api/face/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, signature: faceSignature, modelVersion, threshold })
-        });
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          return { success: false, error: err.error || 'Failed to store face credential' };
-        }
-        return { success: true };
-      } catch {
-        return { success: false, error: 'Face registration failed' };
-      }
-    }
     if (!this.isDatabaseReady) {
       return { success: false, error: 'Database is not ready. Please run the schema setup first.' };
     }
@@ -762,17 +668,6 @@ export class AuthService {
   }
 
   async authenticateFaceOptions(userId: string): Promise<{ success: boolean; options?: FaceAuthenticationOptions; error?: string }> {
-    if (this.apiBaseUrl) {
-      try {
-        const response = await fetch(`${this.apiBaseUrl}/api/face/check?userId=${encodeURIComponent(userId)}`);
-        if (!response.ok) return { success: false, error: 'Failed to prepare face authentication' };
-        const data = await response.json();
-        if (!data.hasFace) return { success: false, error: 'No face credentials found' };
-        return { success: true, options: { method: 'ahash-8x8', threshold: 10 } };
-      } catch {
-        return { success: false, error: 'Failed to prepare face authentication' };
-      }
-    }
     if (!this.isDatabaseReady) {
       return { success: false, error: 'Database is not ready. Please run the schema setup first.' };
     }
@@ -857,16 +752,6 @@ export class AuthService {
   }
 
   async hasFaceCredentials(userId: string): Promise<boolean> {
-    if (this.apiBaseUrl) {
-      try {
-        const response = await fetch(`${this.apiBaseUrl}/api/face/check?userId=${encodeURIComponent(userId)}`);
-        if (!response.ok) return false;
-        const data = await response.json();
-        return !!data.hasFace;
-      } catch {
-        return false;
-      }
-    }
     if (!this.isDatabaseReady) return false;
     try {
       const { data, error } = await supabase

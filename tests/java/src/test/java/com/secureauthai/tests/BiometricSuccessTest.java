@@ -9,8 +9,8 @@ public class BiometricSuccessTest extends BaseTest {
     void biometricSuccess() throws InterruptedException {
         LoginPage page = new LoginPage(driver, baseUrl);
         page.open();
-        page.enterBiometricUsername("demouser");
-        page.clickBiometricAuth();
+        page.enterBiometricUsername("kaycy");
+        page.clickBiometricPrimary();
         Thread.sleep(1000); // observe scanning UI; backend sim decides success
     }
 }

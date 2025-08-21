@@ -41,7 +41,10 @@ public class LoginPage {
 
     public void open() {
         driver.get(baseUrl);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(TAB_BIOMETRIC));
+        wait.until(ExpectedConditions.or(
+                ExpectedConditions.visibilityOfElementLocated(TAB_BIOMETRIC),
+                ExpectedConditions.visibilityOfElementLocated(TAB_PASSWORD)
+        ));
     }
 
     public void switchToPassword() { wait.until(ExpectedConditions.elementToBeClickable(TAB_PASSWORD)).click(); }
@@ -56,6 +59,25 @@ public class LoginPage {
 
     public void clickBiometricAuth() { wait.until(ExpectedConditions.elementToBeClickable(BIOMETRIC_AUTH)).click(); }
 
+    public boolean isPresent(By locator) {
+        try {
+            driver.findElement(locator);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void clickBiometricPrimary() {
+        if (isPresent(BIOMETRIC_AUTH)) {
+            clickBiometricAuth();
+        } else if (isPresent(BIOMETRIC_REGISTER)) {
+            wait.until(ExpectedConditions.elementToBeClickable(BIOMETRIC_REGISTER)).click();
+        } else {
+            throw new RuntimeException("No biometric action button present");
+        }
+    }
+
     public void enterFaceUsername(String user) {
         WebElement el = wait.until(ExpectedConditions.visibilityOfElementLocated(FACE_USERNAME));
         el.clear();
@@ -64,6 +86,16 @@ public class LoginPage {
 
     public WebElement faceAuthButton() { return wait.until(ExpectedConditions.visibilityOfElementLocated(FACE_AUTH)); }
     public void clickFaceAuth() { wait.until(ExpectedConditions.elementToBeClickable(FACE_AUTH)).click(); }
+
+    public void clickFacePrimary() {
+        if (isPresent(FACE_AUTH)) {
+            clickFaceAuth();
+        } else if (isPresent(FACE_REGISTER)) {
+            wait.until(ExpectedConditions.elementToBeClickable(FACE_REGISTER)).click();
+        } else {
+            throw new RuntimeException("No face action button present");
+        }
+    }
 
     public void enterEmail(String email) {
         WebElement el = wait.until(ExpectedConditions.visibilityOfElementLocated(EMAIL));
