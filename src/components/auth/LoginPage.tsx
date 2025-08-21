@@ -38,6 +38,9 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [hasBiometricCredentials, setHasBiometricCredentials] = useState(false);
   const [showDatabaseAlert, setShowDatabaseAlert] = useState(false);
+  const [activeTab, setActiveTab] = useState<"biometric" | "password" | "face">("biometric");
+  const [biometricAttempts, setBiometricAttempts] = useState(0);
+  const [faceAttempts, setFaceAttempts] = useState(0);
   
   // Form states
   const [loginCredentials, setLoginCredentials] = useState<LoginCredentials>({
@@ -215,11 +218,23 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
       }
     } catch (error) {
       setAuthState("error");
+      const attempt = biometricAttempts + 1;
+      setBiometricAttempts(attempt);
       toast({
         title: "Biometric Authentication Failed",
         description: error instanceof Error ? error.message : "Authentication failed",
         variant: "destructive",
       });
+      if (attempt >= 3) {
+        try {
+          const user = await authService.getUserByUsername(biometricUsername.trim());
+          if (user) {
+            setLoginCredentials(prev => ({ ...prev, email: user.email }));
+          }
+        } catch {}
+        toast({ title: "Too many attempts", description: "Please sign in with your password.", variant: "destructive" });
+        setActiveTab("password");
+      }
       
       setTimeout(() => setAuthState("idle"), 3000);
     } finally {
@@ -337,11 +352,23 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
       }
     } catch (error) {
       setAuthState("error");
+      const attempt = faceAttempts + 1;
+      setFaceAttempts(attempt);
       toast({
         title: "Face Authentication Failed",
         description: error instanceof Error ? error.message : "Authentication failed",
         variant: "destructive",
       });
+      if (attempt >= 3) {
+        try {
+          const user = await authService.getUserByUsername(biometricUsername.trim());
+          if (user) {
+            setLoginCredentials(prev => ({ ...prev, email: user.email }));
+          }
+        } catch {}
+        toast({ title: "Too many attempts", description: "Please sign in with your password.", variant: "destructive" });
+        setActiveTab("password");
+      }
       setTimeout(() => setAuthState("idle"), 3000);
     } finally {
       setIsLoading(false);
@@ -409,6 +436,8 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
     } else {
       setHasBiometricCredentials(false);
       setHasFaceCredentials(false);
+      setBiometricAttempts(0);
+      setFaceAttempts(0);
     }
   }, [biometricUsername]);
 
@@ -508,7 +537,7 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
             </div>
           )}
 
-          <Tabs defaultValue="biometric" className="w-full">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="biometric" className="flex items-center space-x-2">
                 <Fingerprint className="h-4 w-4" />
@@ -576,7 +605,7 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
                   ) : (
                     <Button
                       onClick={handleBiometricAuth}
-                      disabled={isLoading || !biometricUsername.trim()}
+                      disabled={isLoading || !biometricUsername.trim() || biometricAttempts >= 3}
                       variant="default"
                       size="lg"
                       className="h-14"
@@ -738,7 +767,7 @@ export const LoginPage = ({ onLoginSuccess, onSwitchToRegister }: LoginPageProps
                   ) : (
                     <Button
                       onClick={handleFaceAuth}
-                      disabled={isLoading || !biometricUsername.trim() || !isFaceSupported}
+                      disabled={isLoading || !biometricUsername.trim() || !isFaceSupported || faceAttempts >= 3}
                       variant="default"
                       size="lg"
                       className="h-14"
