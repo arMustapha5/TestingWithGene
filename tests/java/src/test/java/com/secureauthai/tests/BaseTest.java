@@ -1,5 +1,6 @@
 package com.secureauthai.tests;
 
+import com.secureauthai.pages.LoginPage;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,6 +12,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 public abstract class BaseTest {
     protected WebDriver driver;
     protected String baseUrl;
+    protected LoginPage loginPage;
 
     @BeforeAll
     static void setupDriver() {
@@ -35,6 +37,9 @@ public abstract class BaseTest {
         } else {
             baseUrl = configured.trim();
         }
+        
+        // Initialize LoginPage
+        loginPage = new LoginPage(driver, baseUrl);
     }
 
     @AfterEach
