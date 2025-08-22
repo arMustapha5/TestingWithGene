@@ -1,0 +1,6 @@
+com\secureauthai\tests\BaseTest.class
+com\secureauthai\tests\UserJourneyFlowTest.class
+com\secureauthai\tests\BiometricDeliverableTests.class
+com\secureauthai\tests\TestDataSetup.class
+com\secureauthai\tests\FallbackAfterFailuresTest.class
+com\secureauthai\pages\LoginPage.class

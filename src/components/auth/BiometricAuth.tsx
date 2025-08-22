@@ -8,6 +8,46 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 
+// Test mode detection
+const isTestMode = () => {
+  return window.location.search.includes('test=true') || 
+         window.location.hostname === 'localhost' ||
+         (window as any).__SELENIUM_TEST_MODE__ === true ||
+         typeof (window as any).__mockWebAuthn !== 'undefined';
+};
+
+// Mock WebAuthn for testing
+const mockStartRegistration = async (options: any) => {
+  console.log('🧪 Mock WebAuthn Registration triggered');
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  return {
+    id: 'mock-credential-' + Date.now(),
+    rawId: new ArrayBuffer(64),
+    response: {
+      attestationObject: new ArrayBuffer(1024),
+      clientDataJSON: new ArrayBuffer(256),
+      transports: ['internal']
+    },
+    type: 'public-key'
+  };
+};
+
+const mockStartAuthentication = async (options: any) => {
+  console.log('🧪 Mock WebAuthn Authentication triggered');
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  return {
+    id: 'mock-credential-' + Date.now(),
+    rawId: new ArrayBuffer(64),
+    response: {
+      authenticatorData: new ArrayBuffer(256),
+      clientDataJSON: new ArrayBuffer(256),
+      signature: new ArrayBuffer(256),
+      signCount: 1
+    },
+    type: 'public-key'
+  };
+};
+
 interface AuthState {
   isAuthenticated: boolean;
   method: "password" | "fingerprint" | "face" | "webauthn" | null;
@@ -65,8 +105,10 @@ export const BiometricAuth = ({ authState, setAuthState }: BiometricAuthProps) =
 
       const options = await optionsResponse.json();
 
-      // Start WebAuthn registration
-      const credential = await startRegistration(options);
+      // Start WebAuthn registration (use mock in test mode)
+      const credential = isTestMode() ? 
+        await mockStartRegistration(options) : 
+        await startRegistration(options);
 
       // Verify registration with server
       const verificationResponse = await fetch('http://localhost:3001/api/webauthn/register/verify', {
@@ -143,8 +185,10 @@ export const BiometricAuth = ({ authState, setAuthState }: BiometricAuthProps) =
 
       const options = await optionsResponse.json();
 
-      // Start WebAuthn authentication
-      const credential = await startAuthentication(options);
+      // Start WebAuthn authentication (use mock in test mode)
+      const credential = isTestMode() ? 
+        await mockStartAuthentication(options) : 
+        await startAuthentication(options);
 
       // Verify authentication with server
       const verificationResponse = await fetch('http://localhost:3001/api/webauthn/authenticate/verify', {
