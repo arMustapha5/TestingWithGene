@@ -18,7 +18,7 @@ public class SimpleEndToEndFlowTest extends BaseTest {
         System.out.println("✓ Switched to password authentication tab");
         
         // Enter correct credentials for etornam.koko
-        page.enterEmail("etornam.koko@example.com");
+        page.enterEmail("etorkoko@gmail.com");
         page.enterPassword("12345678");
         System.out.println("✓ Entered credentials for etornam.koko");
         
