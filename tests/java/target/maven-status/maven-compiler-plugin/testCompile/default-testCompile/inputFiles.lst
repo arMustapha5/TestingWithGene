@@ -1,5 +1,6 @@
 C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\FaceLockoutTest.java
 C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\SimpleEndToEndFlowTest.java
+C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\BiometricDeliverableTests.java
 C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\EndToEndFlowTest.java
 C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\BiometricSuccessTest.java
 C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\ComprehensiveBioAuthTest.java
@@ -8,6 +9,5 @@ C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\pages\Lo
 C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\BaseTest.java
 C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\BiometricFailureTest.java
 C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\FallbackAfterFailuresTest.java
-C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\TestSuiteRunner.java
 C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\PermissionsAndNetworkTest.java
 C:\Users\user\TestingWithGene\tests\java\src\test\java\com\secureauthai\tests\TestDataSetup.java
