@@ -366,6 +366,13 @@ VITE_APP_VERSION=1.0.0
 - **Real-time Examples**: Live demonstration capabilities
 - **Community Support**: Active development community
 
+## 👥 Contributors
+- Abdul Rauf Mustapha (https://github.com/arMustapha5)
+- Benedicta Asare (https://github.com/Benedicta-Asare)
+- Emily Quarshie (https://github.com/ladyemilyy)
+- Etornam Koko (https://github.com/K0K0-cod3s)
+- Franz-James Wefagi Kaba (https://github.com/Franz-James-Kaba)
+
 ## 🎉 Getting Started
 
 ### Quick Demo
@@ -385,4 +392,4 @@ VITE_APP_VERSION=1.0.0
 
 **🎉 SecureAuth AI represents the future of real-time, AI-enhanced bioauthentication testing, demonstrating how artificial intelligence can elevate security systems to new levels of efficiency, reliability, and innovation.**
 
-*Built with ❤️ for the AI-Powered Testathon - Empowering QA teams with real-time, AI-enhanced testing capabilities for the future of secure authentication.*
+*Built with ❤️ by FREE-B for the AI-Powered Testathon - Empowering QA teams with real-time, AI-enhanced testing capabilities for the future of secure authentication.*
