@@ -70,7 +70,10 @@ public class LoginPage {
     }
 
     public void open() {
-        driver.get(baseUrl);
+        // Check if we're already on the page to avoid double navigation
+        if (!driver.getCurrentUrl().startsWith(baseUrl)) {
+            driver.get(baseUrl);
+        }
         wait.until(ExpectedConditions.or(
                 ExpectedConditions.visibilityOfElementLocated(TAB_BIOMETRIC),
                 ExpectedConditions.visibilityOfElementLocated(TAB_PASSWORD)

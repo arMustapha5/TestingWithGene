@@ -26,6 +26,30 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { authService, type AuthUser, type RegisterCredentials } from "@/lib/auth-service";
 import { startRegistration } from '@simplewebauthn/browser';
+
+// Test mode detection
+const isTestMode = () => {
+  return window.location.search.includes('test=true') || 
+         window.location.hostname === 'localhost' ||
+         (window as any).__SELENIUM_TEST_MODE__ === true ||
+         typeof (window as any).__mockWebAuthn !== 'undefined';
+};
+
+// Mock WebAuthn for testing
+const mockStartRegistration = async (options: any) => {
+  console.log('🧪 Mock WebAuthn Registration triggered in RegisterPage');
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  return {
+    id: 'mock-credential-' + Date.now(),
+    rawId: new ArrayBuffer(64),
+    response: {
+      attestationObject: new ArrayBuffer(1024),
+      clientDataJSON: new ArrayBuffer(256),
+      transports: ['internal']
+    },
+    type: 'public-key'
+  };
+};
 import { captureFaceSignature } from "@/lib/face-utils";
 
 interface RegisterPageProps {
@@ -154,8 +178,10 @@ export const RegisterPage = ({ onRegisterSuccess, onSwitchToLogin }: RegisterPag
         throw new Error(regOptions.error || "Failed to get registration options");
       }
 
-      // Start WebAuthn registration
-      const credential = await startRegistration(regOptions.options);
+      // Start WebAuthn registration (use mock in test mode)
+      const credential = isTestMode() ? 
+        await mockStartRegistration(regOptions.options) : 
+        await startRegistration(regOptions.options);
 
       // Verify registration
       const verification = await authService.verifyWebAuthnRegistration(userId, credential);

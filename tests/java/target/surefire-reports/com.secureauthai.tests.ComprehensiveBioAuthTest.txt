@@ -1,40 +1,40 @@
 -------------------------------------------------------------------------------
 Test set: com.secureauthai.tests.ComprehensiveBioAuthTest
 -------------------------------------------------------------------------------
-Tests run: 7, Failures: 1, Errors: 2, Skipped: 0, Time elapsed: 161.4 s <<< FAILURE! -- in com.secureauthai.tests.ComprehensiveBioAuthTest
-com.secureauthai.tests.ComprehensiveBioAuthTest.testFallbackToPassword -- Time elapsed: 68.60 s <<< ERROR!
+Tests run: 7, Failures: 1, Errors: 2, Skipped: 0, Time elapsed: 152.5 s <<< FAILURE! -- in com.secureauthai.tests.ComprehensiveBioAuthTest
+com.secureauthai.tests.ComprehensiveBioAuthTest.testFallbackToPassword -- Time elapsed: 74.34 s <<< ERROR!
 org.openqa.selenium.TimeoutException: 
-Expected condition failed: waiting for element to be clickable: By.cssSelector: [data-testid='biometric-auth-button'] (tried for 15 second(s) with 500 milliseconds interval)
+Expected condition failed: waiting for element to be clickable: By.xpath: //button[@data-state and .//span[text()='Password']] (tried for 15 second(s) with 500 milliseconds interval)
 Build info: version: '4.21.0', revision: '79ed462ef4'
 System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.16'
 Driver info: org.openqa.selenium.chrome.ChromeDriver
-Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 139.0.7258.128, chrome: {chromedriverVersion: 139.0.7258.138 (884e54ea8d4..., userDataDir: C:\Users\user\AppData\Local...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:54054}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:54054/devtoo..., se:cdpVersion: 139.0.7258.128, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
-Session ID: 4954317f11e9e256918a6844e6e2732d
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 139.0.7258.128, chrome: {chromedriverVersion: 139.0.7258.138 (884e54ea8d4..., userDataDir: C:\Users\user\AppData\Local...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:55751}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:55751/devtoo..., se:cdpVersion: 139.0.7258.128, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 79e800d2e69c4b6ca74c38142eba4206
 	at org.openqa.selenium.support.ui.WebDriverWait.timeoutException(WebDriverWait.java:84)
 	at org.openqa.selenium.support.ui.FluentWait.until(FluentWait.java:228)
-	at com.secureauthai.pages.LoginPage.clickBiometricAuth(LoginPage.java:104)
-	at com.secureauthai.tests.ComprehensiveBioAuthTest.testFallbackToPassword(ComprehensiveBioAuthTest.java:60)
+	at com.secureauthai.pages.LoginPage.switchToPassword(LoginPage.java:84)
+	at com.secureauthai.tests.ComprehensiveBioAuthTest.testFallbackToPassword(ComprehensiveBioAuthTest.java:75)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
 
-com.secureauthai.tests.ComprehensiveBioAuthTest.testLockoutAfterMultipleFailures -- Time elapsed: 44.86 s <<< ERROR!
+com.secureauthai.tests.ComprehensiveBioAuthTest.testLockoutAfterMultipleFailures -- Time elapsed: 24.28 s <<< ERROR!
 org.openqa.selenium.TimeoutException: 
 Expected condition failed: waiting for element to be clickable: By.cssSelector: [data-testid='biometric-register-button'] (tried for 15 second(s) with 500 milliseconds interval)
 Build info: version: '4.21.0', revision: '79ed462ef4'
 System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.16'
 Driver info: org.openqa.selenium.chrome.ChromeDriver
-Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 139.0.7258.128, chrome: {chromedriverVersion: 139.0.7258.138 (884e54ea8d4..., userDataDir: C:\Users\user\AppData\Local...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:61126}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:61126/devtoo..., se:cdpVersion: 139.0.7258.128, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
-Session ID: ab8faef1eb8a4c6ab67f2e67d4206c4c
+Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 139.0.7258.128, chrome: {chromedriverVersion: 139.0.7258.138 (884e54ea8d4..., userDataDir: C:\Users\user\AppData\Local...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:62768}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:62768/devtoo..., se:cdpVersion: 139.0.7258.128, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 1a443d5700fecec8c905a50baeb961db
 	at org.openqa.selenium.support.ui.WebDriverWait.timeoutException(WebDriverWait.java:84)
 	at org.openqa.selenium.support.ui.FluentWait.until(FluentWait.java:228)
-	at com.secureauthai.pages.LoginPage.clickBiometricPrimary(LoginPage.java:119)
+	at com.secureauthai.pages.LoginPage.clickBiometricPrimary(LoginPage.java:122)
 	at com.secureauthai.tests.ComprehensiveBioAuthTest.testLockoutAfterMultipleFailures(ComprehensiveBioAuthTest.java:152)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
 
-com.secureauthai.tests.ComprehensiveBioAuthTest.testComprehensiveFallback -- Time elapsed: 12.32 s <<< FAILURE!
+com.secureauthai.tests.ComprehensiveBioAuthTest.testComprehensiveFallback -- Time elapsed: 18.99 s <<< FAILURE!
 org.opentest4j.AssertionFailedError: Email should be auto-populated after face auth fallback ==> expected: <true> but was: <false>
 	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
 	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)

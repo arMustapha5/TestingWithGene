@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.secureauthai.tests.EndToEndFlowTest" time="111.014" tests="6" errors="2" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.secureauthai.tests.PermissionsAndNetworkTest" time="7.387" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="webdriver.chrome.driver" value="C:\Users\user\.cache\selenium\chromedriver\win64\139.0.7258.138\chromedriver.exe"/>
@@ -60,133 +60,13 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="passwordLoginFlowWithCorrectCredentials" classname="com.secureauthai.tests.EndToEndFlowTest" time="12.388">
-    <system-out><![CDATA[=== Starting Password Login Flow ===
-✓ Switched to password authentication tab
-✓ Entered credentials for etornam.koko
-✓ Password login submitted
-✓ Password authentication process completed
-=== Password Login Flow Test Completed ===
+  <testcase name="testPermissionsAndNetwork" classname="com.secureauthai.tests.PermissionsAndNetworkTest" time="7.34">
+    <system-out><![CDATA[Permissions and network testing is now part of ComprehensiveBioAuthTest
+Run: mvn test -Dtest=ComprehensiveBioAuthTest
 ]]></system-out>
-    <system-err><![CDATA[Aug 22, 2025 10:47:07 AM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+    <system-err><![CDATA[Aug 22, 2025 10:49:47 AM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
 WARNING: Unable to find CDP implementation matching 139
-Aug 22, 2025 10:47:07 AM org.openqa.selenium.chromium.ChromiumDriver lambda$new$5
-WARNING: Unable to find version of CDP to use for 139.0.7258.128. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.21.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
-]]></system-err>
-  </testcase>
-  <testcase name="completeUserJourneyFlow" classname="com.secureauthai.tests.EndToEndFlowTest" time="22.807">
-    <error message="invalid element state: Element is not currently interactable and may not be manipulated&#10;  (Session info: chrome=139.0.7258.128)&#10;Build info: version: &apos;4.21.0&apos;, revision: &apos;79ed462ef4&apos;&#10;System info: os.name: &apos;Windows 11&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;10.0&apos;, java.version: &apos;17.0.16&apos;&#10;Driver info: org.openqa.selenium.chrome.ChromeDriver&#10;Command: [076d6464f320b2f39f4ac2a39d31d8d3, clearElement {id=f.31C836B032BC4BEB81E6A38EDD125E54.d.406C0FF937E7FFE1EECE1EFD4B04D679.e.42}]&#10;Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 139.0.7258.128, chrome: {chromedriverVersion: 139.0.7258.138 (884e54ea8d4..., userDataDir: C:\Users\user\AppData\Local...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:51053}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:51053/devtoo..., se:cdpVersion: 139.0.7258.128, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}&#10;Element: [[ChromeDriver: chrome on windows (076d6464f320b2f39f4ac2a39d31d8d3)] -&gt; id: face-username]&#10;Session ID: 076d6464f320b2f39f4ac2a39d31d8d3" type="org.openqa.selenium.InvalidElementStateException"><![CDATA[org.openqa.selenium.InvalidElementStateException: 
-invalid element state: Element is not currently interactable and may not be manipulated
-  (Session info: chrome=139.0.7258.128)
-Build info: version: '4.21.0', revision: '79ed462ef4'
-System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.16'
-Driver info: org.openqa.selenium.chrome.ChromeDriver
-Command: [076d6464f320b2f39f4ac2a39d31d8d3, clearElement {id=f.31C836B032BC4BEB81E6A38EDD125E54.d.406C0FF937E7FFE1EECE1EFD4B04D679.e.42}]
-Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 139.0.7258.128, chrome: {chromedriverVersion: 139.0.7258.138 (884e54ea8d4..., userDataDir: C:\Users\user\AppData\Local...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:51053}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:51053/devtoo..., se:cdpVersion: 139.0.7258.128, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
-Element: [[ChromeDriver: chrome on windows (076d6464f320b2f39f4ac2a39d31d8d3)] -> id: face-username]
-Session ID: 076d6464f320b2f39f4ac2a39d31d8d3
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
-	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
-	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
-	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
-	at org.openqa.selenium.remote.ErrorCodec.decode(ErrorCodec.java:167)
-	at org.openqa.selenium.remote.codec.w3c.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:138)
-	at org.openqa.selenium.remote.codec.w3c.W3CHttpResponseCodec.decode(W3CHttpResponseCodec.java:50)
-	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:190)
-	at org.openqa.selenium.remote.service.DriverCommandExecutor.invokeExecute(DriverCommandExecutor.java:216)
-	at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:174)
-	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:518)
-	at org.openqa.selenium.remote.RemoteWebElement.execute(RemoteWebElement.java:223)
-	at org.openqa.selenium.remote.RemoteWebElement.clear(RemoteWebElement.java:129)
-	at com.secureauthai.pages.LoginPage.enterFaceUsername(LoginPage.java:130)
-	at com.secureauthai.tests.EndToEndFlowTest.completeUserJourneyFlow(EndToEndFlowTest.java:211)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-]]></error>
-    <system-out><![CDATA[=== Starting Complete User Journey Flow ===
-→ Step 1: Attempting login with existing user
-✓ Login attempt completed
-→ Step 2: Testing biometric authentication
-✓ Biometric authentication attempted
-→ Step 3: Testing face authentication
-]]></system-out>
-    <system-err><![CDATA[Aug 22, 2025 10:47:19 AM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
-WARNING: Unable to find CDP implementation matching 139
-Aug 22, 2025 10:47:19 AM org.openqa.selenium.chromium.ChromiumDriver lambda$new$5
-WARNING: Unable to find version of CDP to use for 139.0.7258.128. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.21.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
-]]></system-err>
-  </testcase>
-  <testcase name="registrationFlowWithManualBiometricRegistration" classname="com.secureauthai.tests.EndToEndFlowTest" time="27.041">
-    <error message="Expected condition failed: waiting for element to be clickable: By.xpath: //button[@data-state and .//span[text()=&apos;Biometric&apos;]] (tried for 15 second(s) with 500 milliseconds interval)&#10;Build info: version: &apos;4.21.0&apos;, revision: &apos;79ed462ef4&apos;&#10;System info: os.name: &apos;Windows 11&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;10.0&apos;, java.version: &apos;17.0.16&apos;&#10;Driver info: org.openqa.selenium.chrome.ChromeDriver&#10;Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 139.0.7258.128, chrome: {chromedriverVersion: 139.0.7258.138 (884e54ea8d4..., userDataDir: C:\Users\user\AppData\Local...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:49421}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:49421/devtoo..., se:cdpVersion: 139.0.7258.128, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}&#10;Session ID: 36982d9c973d53b54963fb1d0e0a229f" type="org.openqa.selenium.TimeoutException"><![CDATA[org.openqa.selenium.TimeoutException: 
-Expected condition failed: waiting for element to be clickable: By.xpath: //button[@data-state and .//span[text()='Biometric']] (tried for 15 second(s) with 500 milliseconds interval)
-Build info: version: '4.21.0', revision: '79ed462ef4'
-System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.16'
-Driver info: org.openqa.selenium.chrome.ChromeDriver
-Capabilities {acceptInsecureCerts: false, browserName: chrome, browserVersion: 139.0.7258.128, chrome: {chromedriverVersion: 139.0.7258.138 (884e54ea8d4..., userDataDir: C:\Users\user\AppData\Local...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:49421}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:49421/devtoo..., se:cdpVersion: 139.0.7258.128, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
-Session ID: 36982d9c973d53b54963fb1d0e0a229f
-	at org.openqa.selenium.support.ui.WebDriverWait.timeoutException(WebDriverWait.java:84)
-	at org.openqa.selenium.support.ui.FluentWait.until(FluentWait.java:228)
-	at com.secureauthai.pages.LoginPage.switchToRegistrationBiometricTab(LoginPage.java:245)
-	at com.secureauthai.tests.EndToEndFlowTest.registrationFlowWithManualBiometricRegistration(EndToEndFlowTest.java:254)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-]]></error>
-    <system-out><![CDATA[=== Starting Registration Flow with Manual Biometric Registration ===
-✓ Navigated to registration page
-✓ Filled registration form for: manualuser1755859666529
-✓ Account created successfully
-→ Manually registering biometric credentials...
-]]></system-out>
-    <system-err><![CDATA[Aug 22, 2025 10:47:43 AM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
-WARNING: Unable to find CDP implementation matching 139
-Aug 22, 2025 10:47:43 AM org.openqa.selenium.chromium.ChromiumDriver lambda$new$5
-WARNING: Unable to find version of CDP to use for 139.0.7258.128. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.21.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
-]]></system-err>
-  </testcase>
-  <testcase name="faceIdRegistrationAndAuthenticationFlow" classname="com.secureauthai.tests.EndToEndFlowTest" time="11.94">
-    <system-out><![CDATA[=== Starting Face ID Registration and Authentication Flow ===
-✓ Switched to face authentication tab
-✓ Entered username: etornam.koko
-→ User has existing face credentials, authenticating...
-✓ Face authentication completed
-=== Face ID Registration and Authentication Flow Test Completed ===
-]]></system-out>
-    <system-err><![CDATA[Aug 22, 2025 10:48:09 AM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
-WARNING: Unable to find CDP implementation matching 139
-Aug 22, 2025 10:48:09 AM org.openqa.selenium.chromium.ChromiumDriver lambda$new$5
-WARNING: Unable to find version of CDP to use for 139.0.7258.128. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.21.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
-]]></system-err>
-  </testcase>
-  <testcase name="completeAccountCreationAndBiometricRegistrationFlow" classname="com.secureauthai.tests.EndToEndFlowTest" time="20.712">
-    <system-out><![CDATA[=== Starting Account Creation + Biometric Registration Flow ===
-✓ Navigated to registration page
-✓ Filled registration form with: testuser1755859705154
-✓ Enabled biometric registration option
-✓ Submitted account registration
-✓ Biometric registration process initiated automatically
-✓ Account creation and biometric registration flow completed
-=== Account Creation + Biometric Registration Flow Test Completed ===
-]]></system-out>
-    <system-err><![CDATA[Aug 22, 2025 10:48:21 AM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
-WARNING: Unable to find CDP implementation matching 139
-Aug 22, 2025 10:48:21 AM org.openqa.selenium.chromium.ChromiumDriver lambda$new$5
-WARNING: Unable to find version of CDP to use for 139.0.7258.128. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.21.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
-]]></system-err>
-  </testcase>
-  <testcase name="biometricAuthenticationFlowWithValidUser" classname="com.secureauthai.tests.EndToEndFlowTest" time="16.048">
-    <system-out><![CDATA[=== Starting Biometric Authentication Flow with etornam.koko ===
-✓ Switched to biometric authentication tab
-✓ Entered username: etornam.koko
-→ User needs biometric registration, registering now...
-✓ Biometric registration completed
-=== Biometric Authentication Flow Test Completed ===
-]]></system-out>
-    <system-err><![CDATA[Aug 22, 2025 10:48:42 AM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
-WARNING: Unable to find CDP implementation matching 139
-Aug 22, 2025 10:48:42 AM org.openqa.selenium.chromium.ChromiumDriver lambda$new$5
+Aug 22, 2025 10:49:47 AM org.openqa.selenium.chromium.ChromiumDriver lambda$new$5
 WARNING: Unable to find version of CDP to use for 139.0.7258.128. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.21.0` where the version ("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
 ]]></system-err>
   </testcase>
